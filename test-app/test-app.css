@@ -1,0 +1,42 @@
+html, body { 
+    margin: 0; 
+    padding: 0; 
+    height: 100%; 
+    position: relative;
+    overflow: auto;
+    background: #fff;
+}
+
+.tonematrix {
+    width: 386px;
+    height: 346px;
+    padding: 30px;
+    border-radius: 6px;
+    background: #000;
+}
+
+.ui-button {
+    width: 40px;
+    height: 40px;
+}
+
+#status {
+    height: 50px; 
+    position: absolute;
+    top:0;
+    right:0;
+    width: 200px; 
+    font: 13px Helvetica, Arial; 
+    opacity: 0.6;
+    color: #fff;
+}
+
+#status p { 
+    background: #222;
+    padding: 8px; 
+    margin: 0; 
+}
+
+#status p:nth-child(odd) { 
+    background: #333; 
+}

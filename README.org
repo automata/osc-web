@@ -1,0 +1,68 @@
+* Open Sound Control Web Bridge
+
+* Introduction
+
+OSC (Open Sound Control) is a protocol on top of UDP commonly used by
+audio applications. It could be seem as a /MIDI evolution/. 
+
+The objective of *osc-web* is to make possible to send and receive
+OSC messages on the Web browser. With this browser capability we could
+do interesting things like:
+
+- Connect OSC supported controllers to the Web browser
+- Use the Web browser as a controller to OSC supported applications
+  (like Puredata, SuperCollider, Max/MSP, ...)
+- Create a Web /OSC proxy/ where people all over the world could
+  connect yours OSC controllers or applications without complications
+  with /port fordwarding/
+
+Some weeks ago I was asking for awesome people on AudioXG about that
+and we come with some options:
+
+1. create a Firefox extension using nsISocketTransport
+2. create a kind of HTTP proxy (thanks @corban, @F1LT3R, @humph and yury!)
+
+The first one works but seems to be a security hole (as yuri saids, no
+one wants UDP connections on its browsers). Now I'm trying the second
+alternative, using node.js and socket.io to create a bridge between
+OSC controllers/applications and the browser.
+
+* Prerequisites
+
+- [[http://nodejs.org][node.js]]
+- [[http://socket.io][socket.io]]
+- an OSC supported application ([[http://puredata.org][Puredata]]) or hardware controller
+
+* Installation
+
+#+begin_src sh
+$ git clone git://github.com/automata/osc-web.git
+#+end_src
+
+* Using
+
+Run the osc-web server on your localhost:
+
+#+begin_src sh
+$ cd osc-web
+$ node osc-web-server.js
+#+end_src
+
+Now open the client:
+
+#+begin_src sh
+$ firefox test-app/test-app.html
+#+end_src
+
+* Related Solutions
+
+- [[https://github.com/fajran/npTuioClient][npTuioClient]]: a NPAPI plugin implementing a TUIOClient clone
+- [[http://pooky.sourceforge.net/wiki/PookyTouch][PookyTouch]]: similar to npTuioClient using Java-JS LiveConnect bridge
+- [[http://blog.lilyapp.org/2007/05/lily_osc_1.html][lily's approach]]: some good notes. also uses LiveConnect
+- [[http://tirl.org/software/maxjax/][MaxJax]]: OSC bridge using Python Twisted (just sending OSC)
+
+* References
+
+- [[http://www.midnightresearch.com/index.php?s=nsisockettransportservice][Socket connections in FF]]
+- [[http://opensoundcontrol.org/files/osc-best-practices-final.pdf][OSC Best Practices]]
+- [[http://opensoundcontrol.org/spec-1_0][OSC 1.0 Specification]]
