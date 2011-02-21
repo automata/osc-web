@@ -4,7 +4,22 @@ html, body {
     height: 100%; 
     position: relative;
     overflow: auto;
-    background: #fff;
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.02, rgb(44,119,80)),
+        color-stop(0.51, rgb(71,155,112)),
+        color-stop(0.76, rgb(100,186,146))
+    );
+    background-image: -moz-linear-gradient(
+        center bottom,
+        rgb(44,119,80) 2%,
+        rgb(71,155,112) 51%,
+        rgb(100,186,146) 76%
+    );
+    
 }
 
 .tonematrix {
@@ -12,7 +27,12 @@ html, body {
     height: 346px;
     padding: 30px;
     border-radius: 6px;
-    background: #000;
+    background:-moz-linear-gradient(center top , #444, #222);
+    35
+    background: -webkit-gradient(linear, center top, center bottom, from(#444), to(#222));
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
 .ui-button {
