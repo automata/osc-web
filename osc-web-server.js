@@ -25,37 +25,32 @@ io.on('connection', function(client){
     var OSCclient = new osc.Client(11720, '127.0.0.1');
 
     // tell to lp that it should send messages to us at localhost:4343
-    OSCmsg = new osc.Message('/lp/dest');
-    OSCmsg.append('osc.udp://localhost:4343/browser/');
-    OSCclient.send(OSCmsg);
+    var message = new osc.Message('/lp/dest', 'osc.udp://localhost:4343/browser/');
+    OSCclient.send(message);
 
     // so let's start to listen on 4343
     var OSCserver = new osc.Server(4343, '127.0.0.1');
 
-    OSCserver.addMsgHandler('/lp/matrix', function (args) {
-        client.send({message: args});
+    OSCserver.on('/lp/matrix', function (args) {
+        client.send({ message: args });
     });
 
-    OSCserver.addMsgHandler('/lp/ctrl', function (args) {
-        client.send({message: '/lp/ctrl ' + args});
+    OSCserver.on('/lp/ctrl', function (args) {
+        client.send({ message: '/lp/ctrl ' + args });
     });
 
-    OSCserver.addMsgHandler('/lp/scene', function (args) {
-        client.send({message: '/lp/scene ' + args});
+    OSCserver.on('/lp/scene', function (args) {
+        client.send({ message: '/lp/scene ' + args });
     });
 
-    client.broadcast({ connection: client.sessionId});
+    client.broadcast({ connection: client.sessionId });
     
-    client.on('message', function(message){
-        var msg = { message: [client.sessionId, message] };
-        var OSCargs = message.split(' ');
-        OSCmsg = new osc.Message('/lp/matrix');
-        for (i=0; i<OSCargs.length; i++) {
-                    OSCmsg.append(parseInt(OSCargs[i]));
-        } 
-        OSCclient.send(OSCmsg);
-        console.log(msg);
-        client.broadcast(msg);
+    client.on('message', function(message) {
+        var localMessage = { message: [client.sessionId, message] };
+        var message = new osc.Message('/lp/matrix', message.split(' '));
+        OSCclient.send(message);
+        console.log(localMessage);
+        client.broadcast(localMessage);
     });
 
     client.on('disconnect', function(){
