@@ -1,5 +1,5 @@
 /*!
- *  Copyright © 2008 Fair Oaks Labs, Inc.
+ *  Copyright (C) 2008 Fair Oaks Labs, Inc.
  *  All rights reserved.
  */
 
@@ -204,10 +204,12 @@ function JSPack()
 		{
 			n = ((m[1]==undefined)||(m[1]==''))?1:parseInt(m[1]);
 			s = this._lenLut[m[2]];
+                    /*
 			if ((p + n*s) > a.length)
 			{
 				return false;
 			}
+                        */
 			switch (m[2])
 			{
 				case 'A': case 's':
@@ -228,13 +230,15 @@ function JSPack()
 			}
 			p += n*s;
 		}
-		return a;
+		return p;
 	};
 
 	// Pack the supplied values into a new octet array, according to the fmt string
 	m.Pack = function (fmt, values)
 	{
-		return this.PackTo(fmt, new Array(this.CalcLength(fmt)), 0, values);
+                a = new Array(this.CalcLength(fmt));
+                this.PackTo(fmt, a, 0, values);
+                return a;
 	};
 
 	// Determine the number of bytes represented by the format string
