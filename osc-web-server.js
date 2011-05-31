@@ -9,56 +9,68 @@ var fs   = require('fs'),
     io   = require('socket.io'),
     osc  = require('osc');
 
-// HTTP server listening on port 4040.
+// HTTP server listening on port 3000.
 var server = http.createServer(function(req, res){ 
     res.writeHead(200, {'Content-Type': 'text/html'}); 
     res.end('<h1>Hello world</h1>'); 
 });
-server.listen(4040);
+server.listen(3000);
 
-var socket = io.listen(server);
+// OSCServer and OSCClient is just defined here.
+// create the socket for communicating to the browser.
+var OSCServer,
+    OSCClient,
+    socket = io.listen(server);
 
-var OSCServer = new osc.Server(4343, 'localhost'),
-    OSCClient = new osc.Client('localhost', 12000);
-
-OSCServer.on('/m1/foo/me', function(msg) {
-    if (msg.typetags == 'is') {
-        var message = new osc.Message('/node/m1');
-        message.add(msg.args[0]);
-        this.send(message, OSCClient);
-    }
-});
-OSCServer.on('/m1/bar/you', function(values) {
-    console.log(values);
-});
-
+// bind callbacks.
 socket.on('connection', function(client){
-    // tell to lp that it should send messages to us at localhost:4343
-    var message = new osc.Message('/lp/dest', 'osc.udp://localhost:4343/browser/');
-    OSCServer.send(message, OSCclient);
-
-    OSCserver.on('/lp/matrix', function (args) {
-        client.send({ message: args });
-    });
-
-    OSCserver.on('/lp/ctrl', function (args) {
-        client.send({ message: '/lp/ctrl ' + args });
-    });
-
-    OSCserver.on('/lp/scene', function (args) {
-        client.send({ message: '/lp/scene ' + args });
-    });
-
-    client.broadcast({ connection: client.sessionId });
+    client.broadcast({ info: client.sessionId + ' connected' });
     
-    client.on('message', function(message) {
-        var localMessage = { message: [client.sessionId, message] };
-        var message = new osc.Message('/lp/matrix', message.split(' '));
-        OSCserver.send(message, OSCclient);
-        console.log(localMessage);
-        client.broadcast(localMessage);
+    client.on('message', function(obj) {
+        // in this example, first browser-client sends a configuration object.
+        // it contains 'port' and 'host' settings for Server and Client.
+        if ('config' in obj) {
+            var config = obj.config;
+            OSCServer = new osc.Server(config.server.port, config.server.host);
+            OSCClient = new osc.Client(config.client.host, config.client.port);
+            
+            var message = new osc.Message('/status', client.sessionId + ' connected');
+            OSCServer.send(message, OSCClient);
+            
+            // OSCServer dispatches 'oscmessage' event when receives the message.
+            // so we attach handler on the event for global message handling.
+            OSCServer.on('oscmessage', function(msg) {
+                // check message's address pattern.
+                if (msg.checkAddrPattern('/lp/matrix')) {
+                    // and check messages typetag.
+                    if (msg.checkTypetag('iii')) {
+                        client.send({
+                            OSCMessage: {
+                                address: msg.address,
+                                typetags: msg.typetags,
+                                args: msg.args
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            // Bundle is now available.
+            var bundle   = new osc.Bundle(),
+                message1 = new osc.Message(obj.address, obj.message),
+                message2 = new osc.Message('/status', 'from ' + client.sessionId + ' at ' + new Date().toString());
+            
+            // to bundle messages, simply call 'add()' with instance of the Message.
+            bundle.add(message1);
+            bundle.add(message2);
+            // set timetag.
+            bundle.setTimetag(bundle.now());
+            
+            // we can send Bundle in the same way as Message.
+            OSCServer.send(bundle, OSCClient);
+        }
     });
-
+    
     client.on('disconnect', function(){
         client.broadcast({ disconnection: client.sessionId});
     });

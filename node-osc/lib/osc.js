@@ -6,13 +6,14 @@ var dgram  = require('dgram'),
     events = require('events'),
     jspack = require('jspack').jspack;
 
+
 /****************************************************
  *
  * OSC Message
  *
  ****************************************************/
 
-function Message (address) {
+function Message(address) {
     this.address  = address;
     this.typetags = '';
     this.args     = [];
@@ -29,11 +30,11 @@ Message.prototype = {
     _add: function(arg) {
         switch (typeof arg) {
             case 'object':
-                if ((arg.super && arg.super.name === 'Type') || (arg.typetag && arg.value)) {
+                if ((arg.super && arg.super.name === 'IDataType') || (typeof arg.typetag !== undefined && typeof arg.value !== undefined)) {
                     this.typetags += arg.typetag;
                     this.args.push(arg);
                 } else {
-                    throw new Error('Message::add - invalid argument', arg);
+                    throw new Error('Message::add - invalid argument' + arg);
                 }
                 break;
             case 'number':
@@ -79,10 +80,27 @@ Message.prototype = {
         this.args     = [];
     },
     
+    // check addrPattern eqauls this.address
+    checkAddrPattern: function(addrPattern) {
+        if (this.address == addrPattern) {
+            return true;
+        }
+        return false;
+    },
+    
+    // check typetag eqauls this.typetags
+    checkTypetag: function(typetag) {
+        if (this.typetags == typetag) {
+            return true;
+        }
+        return false;
+    },
+    
     toBinary: function () {
-        var address = new TString(this.address);
-        var binary = [];
-        var pos = 0;
+        var address = new TString(this.address),
+            binary = [],
+            pos = 0;
+        
         pos = address.encode(binary, pos);
         if (this.typetags) {
             var typetags = new TString(',' + this.typetags);
@@ -97,41 +115,80 @@ Message.prototype = {
 
 exports.Message = Message;
 
-// Bundle does not work yet (uses message.append, which no longer exists)
-var Bundle = function (address, time) {
-    Message.call(this, address);
-    this.timetag = time || 0;
+
+/****************************************************
+ *
+ * OSC Bundle
+ *
+ ****************************************************/
+
+function Bundle() {
+    this.messages = [];
+    this.timetag = 1;
 }
 
-sys.inherits(Bundle, Message);
-
-Bundle.prototype.append = function (arg) {
-    var binary;
-    if (arg instanceof Message) {
-        binary = new TBlob(arg.toBinary());
-    } else {
-        var msg = new Message(this.address);
-        if (typeof(arg) == 'Object') {
-            if (arg.addr) {
-                msg.address = arg.addr;
-            }
-            if (arg.args) {
-                msg.append.apply(arg.args);
-            }
+Bundle.prototype = {
+    // offset from 1.1.1900 - 1.1.1970
+    TIMETAG_OFFSET: 2208988800,
+    
+    add: function (arg) {
+        if (arg instanceof Message) {
+            this.messages.push(arg);
         } else {
-            msg.append(arg);
+            throw new Error('Argument must be instance of Message: ' + arg);
         }
-        binary = new TBlob(msg.toBinary());
+    },
+    
+    // get message at the index
+    getMessage: function(index) {
+        return this.messages[index];
+    },
+    
+    // remove message at the index
+    remove: function(index) {
+        this.messages.splice(index, 1); 
+    },
+    
+    // returns the TTimetag instance based on this.timetag
+    getTimetag: function() {
+        return new TTimetag(this.timetag);
+    },
+    
+    // set timetag
+    // TODO: JavaScript doesn't support 64bit fixed point number.
+    //       Current implementation in Bundle for timetag support
+    //       is not meet OSC's specifications :(
+    setTimetag: function(time) {
+        var secsOffset = time / 1000 + this.TIMETAG_OFFSET;
+        var secsFractional = ((time % 1000) << 32) / 1000;
+        this.timetag = (secsOffset << 32) | secsFractional;
+    },
+    
+    // returns the current time in millisecond. use with setTimetag.
+    now: function() {
+        return Date.now();
+    },
+    
+    size: function() {
+        return this.messages.length;
+    },
+    
+    // return binary representation of this Bundle
+    toBinary: function () {
+        var bundle = new TString('#bundle'),
+            binary = [],
+            pos    = bundle.encode(binary, 0);
+        
+        pos = this.getTimetag().encode(binary, pos);
+        
+        for (var i = 0; i < this.messages.length; i++) {
+            var mBinary = this.getMessage(i).toBinary();
+            pos = new TInt(mBinary.length).encode(binary, pos);
+            binary = binary.concat(mBinary);
+            pos = binary.length;
+        }
+        return binary;
     }
-    this.message += binary;
-    this.typetags += 'b';
-};
-
-Bundle.prototype.toBinary = function () {
-    var binary = new TString('#bundle');
-    binary = binary.concat(new TTimeTag(this.timetag));
-    binary = binary.concat(this.message);
-    return binary;
 };
 
 exports.Bundle = Bundle;
@@ -169,7 +226,7 @@ IDataType.prototype = {
     endode : function() {}
 };
 
-function TString (value) { this.super(value, this.typetag); }
+function TString(value) { this.super(value, this.typetag); }
 TString.prototype = {
     super: IDataType,
     typetag: 's',
@@ -191,7 +248,7 @@ TString.prototype = {
     }
 };
 
-function TInt (value) { this.super(value, this.typetag); }
+function TInt(value) { this.super(value, this.typetag); }
 TInt.prototype = {
     super: IDataType,
     typetag: 'i',
@@ -208,23 +265,23 @@ TInt.prototype = {
     }
 };
 
-function TTime (value) { this.super(value, this.typetag); }
-TTime.prototype = {
+function TTimetag(value) { this.super(value, this.typetag); }
+TTimetag.prototype = {
     super: IDataType,
     typetag: 't',
     decode: function (data) {
         if (data.length < 8) {
             throw new ShortBuffer('time', data, 8);
         }
-        this.value = jspack.Unpack('>LL', data.slice(0, 8))[0];
+        this.value = jspack.Unpack('>ll', data.slice(0, 8))[0];
         return data.slice(8);
     },
     encode: function (buf, pos) {
-        return jspack.PackTo('>LL', buf, pos, this.value);
+        return jspack.PackTo('>ll', buf, pos, this.value);
     }
 };
 
-function TFloat (value) { this.super(value, this.typetag); }
+function TFloat(value) { this.super(value, this.typetag); }
 TFloat.prototype = {
     super: IDataType,
     typetag: 'f',
@@ -241,7 +298,7 @@ TFloat.prototype = {
     }
 };
 
-function TBlob (value) { this.super(value, this.typetag); }
+function TBlob(value) { this.super(value, this.typetag); }
 TBlob.prototype = {
     super: IDataType,
     typetag: 'b',
@@ -257,7 +314,7 @@ TBlob.prototype = {
     }
 };
 
-function TDouble (value) { this.super(value, this.typetag); }
+function TDouble(value) { this.super(value, this.typetag); }
 TDouble.prototype = {
     super: IDataType,
     typetag: 'd',
@@ -314,13 +371,14 @@ function decode (data) {
     return message;
 };
 
+
 /****************************************************
  *
  * OSC Server
  *
  ****************************************************/
 
-var Server = function(port, host) {
+function Server(port, host) {
     events.EventEmitter.call(this);
     
     this.port = port;
@@ -329,7 +387,7 @@ var Server = function(port, host) {
     this._sock = dgram.createSocket('udp4');
     this._sock.bind(this.port, this.host);
     
-    var server = this,
+    var oscServer = this,
         _callbacks = [];
     
     
@@ -356,15 +414,15 @@ var Server = function(port, host) {
         var decoded = decode(msg);
         try {
             if (decoded) {
-                server.emit('message', decoded, rinfo);
-                server.emit(decoded.address, decoded, rinfo);
+                oscServer.emit('oscmessage', decoded);
+                //oscServer.emit(decoded.address, decoded, rinfo);
             }
         }
         catch (e) {
-            console.log("can't decode incoming message: " + e.message, e);
+            console.log("can't decode incoming message: " + e.message);
         }
     });
-};
+}
 
 util.inherits(Server, events.EventEmitter);
 exports.Server = Server;
@@ -376,26 +434,9 @@ exports.Server = Server;
  *
  ****************************************************/
 
-var Client = function (host, port) {
-    this.port = port;
-    this.host = host;
-    this._sock = dgram.createSocket('udp4');
+function Client(host, port) {
+    this.port  = port;
+    this.host  = host;
 }
-
-Client.prototype = {
-    send: function (msg) {
-        var binary;
-        if (msg.toBinary && typeof msg.toBinary === 'function') {
-            binary = msg.toBinary();
-        } else {
-            // cheesy
-            var message = {};
-            Message.apply(message, arguments)
-            binary = Message.prototype.toBinary.call(message);
-        }
-        var b = new buffer.Buffer(binary, 'binary');
-        this._sock.send(b, 0, b.length, this.port, this.host);
-    }
-};
 
 exports.Client = Client;
