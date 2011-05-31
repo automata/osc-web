@@ -8,6 +8,7 @@ $(function() {
     $( "input:checkbox", ".tonematrix").button().click(function () {
         var id = $(this).attr('id');
         if ($(this).attr('checked')) {
+            console.log(id, id[1], id[2]);
             socket.send(id[1] + ' ' + id[2] + ' 127');
         } else {
             socket.send(id[1] + ' ' + id[2] + ' 0');

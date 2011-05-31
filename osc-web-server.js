@@ -1,35 +1,41 @@
-var fs = require('fs'),
-    sys = require(process.binding('natives').util ? 'util' : 'sys'),
-    url = require('url'),
+require.paths.unshift(__dirname + '/node-osc/lib');
+
+var fs   = require('fs'),
+    sys  = require(process.binding('natives').util ? 'util' : 'sys'),
+    url  = require('url'),
     http = require('http'),
     path = require('path'),
     mime = require('mime'),
-    io = require('socket.io');
+    io   = require('socket.io'),
+    osc  = require('osc');
 
-require.paths.unshift(__dirname + '/node-osc/lib');
-
-var osc = require('osc');
-// FIXME: implement the OSCServer on node-osc, so we will not need dgram here
-var dgram = require('dgram');
-
-server = http.createServer(function(req, res){ 
+// HTTP server listening on port 4040.
+var server = http.createServer(function(req, res){ 
     res.writeHead(200, {'Content-Type': 'text/html'}); 
     res.end('<h1>Hello world</h1>'); 
 });
-
 server.listen(4040);
 
-var io = io.listen(server);
+var socket = io.listen(server);
 
-io.on('connection', function(client){
-    var OSCclient = new osc.Client(11720, '127.0.0.1');
+var OSCServer = new osc.Server(4343, 'localhost'),
+    OSCClient = new osc.Client('localhost', 12000);
 
+OSCServer.on('/m1/foo/me', function(msg) {
+    if (msg.typetags == 'is') {
+        var message = new osc.Message('/node/m1');
+        message.add(msg.args[0]);
+        this.send(message, OSCClient);
+    }
+});
+OSCServer.on('/m1/bar/you', function(values) {
+    console.log(values);
+});
+
+socket.on('connection', function(client){
     // tell to lp that it should send messages to us at localhost:4343
     var message = new osc.Message('/lp/dest', 'osc.udp://localhost:4343/browser/');
-    OSCclient.send(message);
-
-    // so let's start to listen on 4343
-    var OSCserver = new osc.Server(4343, '127.0.0.1');
+    OSCServer.send(message, OSCclient);
 
     OSCserver.on('/lp/matrix', function (args) {
         client.send({ message: args });
@@ -48,7 +54,7 @@ io.on('connection', function(client){
     client.on('message', function(message) {
         var localMessage = { message: [client.sessionId, message] };
         var message = new osc.Message('/lp/matrix', message.split(' '));
-        OSCclient.send(message);
+        OSCserver.send(message, OSCclient);
         console.log(localMessage);
         client.broadcast(localMessage);
     });
