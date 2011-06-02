@@ -414,7 +414,7 @@ function Server(port, host) {
         var decoded = decode(msg);
         try {
             if (decoded) {
-                oscServer.emit('oscmessage', decoded);
+                oscServer.emit('oscmessage', decoded, rinfo);
                 //oscServer.emit(decoded.address, decoded, rinfo);
             }
         }
