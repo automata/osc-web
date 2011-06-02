@@ -331,11 +331,13 @@ TDouble.prototype = {
 };
 
 // for each OSC type tag we use a specific constructor function to decode its respective data
-var tagToConstructor = { 'i': function () { return new TInt },
-                         'f': function () { return new TFloat },
-                         's': function () { return new TString },
-                         'b': function () { return new TBlob },
-                         'd': function () { return new TDouble } };
+var tagToConstructor = {
+    'i': function () { return new TInt },
+    'f': function () { return new TFloat },
+    's': function () { return new TString },
+    'b': function () { return new TBlob },
+    'd': function () { return new TDouble }
+};
 
 function decode (data) {
     var message = new Message();
@@ -369,7 +371,7 @@ function decode (data) {
     }
     
     return message;
-};
+}
 
 
 /****************************************************
@@ -383,39 +385,18 @@ function Server(port, host) {
     
     this.port = port;
     this.host = host;
-    
     this._sock = dgram.createSocket('udp4');
     this._sock.bind(this.port, this.host);
     
     var oscServer = this,
         _callbacks = [];
     
-    
-    this.send = function (msg, client) {
-        if (!client || !client instanceof Client) {
-            throw new Error('Server::send - invalid client');
-        }
-        
-        var binary;
-        if (msg.toBinary && typeof msg.toBinary === 'function') {
-            binary = msg.toBinary();
-        } else {
-            // cheesy
-            var message = {};
-            Message.apply(message, arguments)
-            binary = Message.prototype.toBinary.call(message);
-        }
-        var buf = new Buffer(binary, 'binary');
-        this._sock.send(buf, 0, buf.length, client.port, client.host);
-    };
-    
     this._sock.on('message', function (msg, rinfo) {
-        // decoded message is now chenged into object.
+        // decoded message is now chenged into Message.
         var decoded = decode(msg);
         try {
             if (decoded) {
                 oscServer.emit('oscmessage', decoded, rinfo);
-                //oscServer.emit(decoded.address, decoded, rinfo);
             }
         }
         catch (e) {
@@ -425,6 +406,30 @@ function Server(port, host) {
 }
 
 util.inherits(Server, events.EventEmitter);
+
+Server.prototype.send = function (msg, client) {
+    console.log(arguments);
+    if (!client || !client instanceof Client) {
+        throw new Error('Server::send - invalid client');
+    }
+    
+    var binary;
+    if (msg.toBinary && typeof msg.toBinary === 'function') {
+        binary = msg.toBinary();
+    } else {
+        // cheesy
+        var message = {};
+        Message.apply(message, arguments)
+        binary = Message.prototype.toBinary.call(message);
+    }
+    var buf = new Buffer(binary, 'binary');
+    this._sock.send(buf, 0, buf.length, client.port, client.host);
+};
+
+Server.prototype.dispose = function() {
+    this._sock.close();
+};
+
 exports.Server = Server;
 
 
@@ -435,8 +440,8 @@ exports.Server = Server;
  ****************************************************/
 
 function Client(host, port) {
-    this.port  = port;
-    this.host  = host;
+    this.port = port;
+    this.host = host;
 }
 
 exports.Client = Client;

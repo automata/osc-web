@@ -1,11 +1,6 @@
 require.paths.unshift(__dirname + '/node-osc/lib');
 
-var fs   = require('fs'),
-    sys  = require(process.binding('natives').util ? 'util' : 'sys'),
-    url  = require('url'),
-    http = require('http'),
-    path = require('path'),
-    mime = require('mime'),
+var http = require('http'),
     io   = require('socket.io'),
     osc  = require('osc');
 
