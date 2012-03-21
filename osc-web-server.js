@@ -6,9 +6,9 @@ var fs = require('fs'),
     mime = require('mime'),
     io = require('socket.io');
 
-require.paths.unshift(__dirname + '/node-osc/lib');
+// require.paths.unshift(__dirname + '/node-osc/lib');
 
-var osc = require('osc');
+var osc = require('./node-osc/lib/osc');
 // FIXME: implement the OSCServer on node-osc, so we will not need dgram here
 var dgram = require('dgram');
 
