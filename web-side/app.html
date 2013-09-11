@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+</head>
+
+<body>
+<p>Connect your OSC app/device at port 3333 to send messages to this
+page.<br /><br />Configure your OSC app/device to listen at port 3334
+to messages I send from this page.</p>
+
+<hr />
+
+Received from an OSC app/device at : <div id="status"></div>
+
+<hr />
+
+<script src="http://127.0.0.1:8081/socket.io/socket.io.js"></script>
+
+<script>
+   socket = io.connect('http://127.0.0.1', { port: 8081, rememberTransport: false});
+   console.log('oi');
+   socket.on('connect', function() {
+        // sends to socket.io server the host/port of oscServer
+        // and oscClient
+        socket.emit('config',
+            {
+                server: {
+                    port: 3333,
+                    host: '127.0.0.1'
+                },
+                client: {
+                    port: 3334,
+                    host: '127.0.0.1'
+                }
+            }
+        );
+    });
+
+    socket.on('message', function(obj) {
+        var status = document.getElementById("status");
+        status.innerHTML = obj[0];
+        console.log(obj);
+    });
+</script>
+
+<button onclick="socket.emit('message', '/foobar');">Send OSC message</button>
+
+</body> </html>
