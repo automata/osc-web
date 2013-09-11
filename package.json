@@ -1,0 +1,30 @@
+{
+  "name": "osc-web",
+  "description": "Connect jquery UI with sockets to send osc messages",
+  "version": "0.1.0",
+  "main": "osc-web-server.js",
+  "author": {
+    "name": "Vilson Vieira",
+    "email": "vilson@void.cc"
+  },
+  "contributors": [
+    {
+      "name": "Myles Borins",
+      "email": "myles.borins@gmail.com"
+    }
+  ],
+  "dependencies": {
+    "node-osc": "0.1.0",
+    "mime": "1.2.5",
+	"socket.io": "0.9.2"
+  },
+  "keywords": [
+    "osc",
+    "udp",
+	"jquery"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/TheAlphaNerd/osc-web.git"
+  }
+}

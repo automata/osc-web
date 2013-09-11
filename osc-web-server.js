@@ -4,13 +4,8 @@ var fs = require('fs'),
     http = require('http'),
     path = require('path'),
     mime = require('mime'),
-    io = require('socket.io');
-
-require.paths.unshift(__dirname + '/node-osc/lib');
-
-var osc = require('osc');
-// FIXME: implement the OSCServer on node-osc, so we will not need dgram here
-var dgram = require('dgram');
+    io = require('socket.io'),
+	osc = require('node-osc');
 
 server = http.createServer(function(req, res){ 
     res.writeHead(200, {'Content-Type': 'text/html'}); 
