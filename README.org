@@ -71,7 +71,12 @@ on 3333 and sending messages to 3334.
 
 Take a look at osc-side/ to examples of OSC apps.
 
-* Related Solutions
+* Projects using it
+
+- https://vimeo.com/album/1636910/video/25796673
+- http://codes.nevercool.com/
+
+* Related solutions
 
 - [[https://github.com/fajran/npTuioClient][npTuioClient]]: a NPAPI plugin implementing a TUIOClient clone
 - [[http://pooky.sourceforge.net/wiki/PookyTouch][PookyTouch]]: similar to npTuioClient using Java-JS LiveConnect bridge
