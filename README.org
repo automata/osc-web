@@ -73,8 +73,7 @@ Take a look at osc-side/ to examples of OSC apps.
 
 * Projects using it
 
-- https://vimeo.com/album/1636910/video/25796673
-- http://codes.nevercool.com/
+- 2011 Experience Design class project: http://codes.nevercool.com and https://vimeo.com/album/1636910
 
 * Related solutions
 
