@@ -3,8 +3,9 @@ var osc = require('node-osc'),
 
 var oscServer, oscClient;
 
-io.sockets.on('connection', function (socket) {
-  socket.on("config", function (obj) {
+io.on('connection', function (socket) {
+  socket.on('config', function (obj) {
+    console.log('config', obj);
     oscServer = new osc.Server(obj.server.port, obj.server.host);
     oscClient = new osc.Client(obj.client.host, obj.client.port);
 
@@ -12,10 +13,10 @@ io.sockets.on('connection', function (socket) {
 
     oscServer.on('message', function(msg, rinfo) {
       console.log(msg, rinfo);
-      socket.emit("message", msg);
+      socket.emit('message', msg);
     });
   });
-  socket.on("message", function (obj) {
+  socket.on('message', function (obj) {
     oscClient.send(obj);
   });
 });
