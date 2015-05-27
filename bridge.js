@@ -12,11 +12,12 @@ io.on('connection', function (socket) {
     oscClient.send('/status', socket.sessionId + ' connected');
 
     oscServer.on('message', function(msg, rinfo) {
-      console.log(msg, rinfo);
       socket.emit('message', msg);
+      console.log('sent OSC message to WS', msg, rinfo);
     });
   });
   socket.on('message', function (obj) {
     oscClient.send(obj);
+    console.log('sent WS message to OSC', obj);
   });
 });
