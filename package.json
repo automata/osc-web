@@ -30,14 +30,14 @@
 	
 	],
 	"dependencies": {
-		"node-osc": "0.2.x",
-		"socket.io": "0.9.x"
+		"node-osc": "1.1.x",
+		"socket.io": "1.3.x"
 	},
 	"keywords": [
 		"osc",
 		"socket",
-                "websockets",
-                "music"
+		"websockets",
+		"music"
 	],
 	"repository": {
 		"type": "git",

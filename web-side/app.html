@@ -17,7 +17,7 @@ Received from an OSC app/device at : <div id="status"></div>
 <script src="http://127.0.0.1:8081/socket.io/socket.io.js"></script>
 
 <script>
-   socket = io.connect('http://127.0.0.1', { port: 8081, rememberTransport: false});
+   var socket = io('http://127.0.0.1:8081');
    console.log('oi');
    socket.on('connect', function() {
         // sends to socket.io server the host/port of oscServer
