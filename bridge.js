@@ -17,8 +17,9 @@ io.on('connection', function (socket) {
     });
   });
   socket.on('message', function (obj) {
-    oscClient.send(obj);
-    console.log('sent WS message to OSC', obj);
+    var toSend = obj.split(' ');
+    oscClient.send(...toSend);
+    console.log('sent WS message to OSC', toSend);
   });
   socket.on("disconnect", function () {
     oscServer.kill();
