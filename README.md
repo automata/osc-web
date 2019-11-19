@@ -1,6 +1,8 @@
-* Open Sound Control Web Bridge
+# Open Sound Control Web Bridge
 
-* Introduction
+Creates a simple bridge between your Web page and an OSC app or device.
+
+## Introduction
 
 OSC (Open Sound Control) is a protocol on top of UDP commonly used by
 audio applications. It could be seem as a /MIDI evolution/. 
@@ -16,7 +18,9 @@ do interesting things like:
   connect yours OSC controllers or applications without complications
   with /port fordwarding/
 
-Some weeks ago I was asking for awesome people on AudioXG about that
+### History
+
+Long time ago I was asking for awesome people on AudioXG about that
 and we come with some options:
 
 1. create a Firefox extension using nsISocketTransport
@@ -27,36 +31,39 @@ one wants UDP connections on its browsers). Now I'm trying the second
 alternative, using node.js and socket.io to create a bridge between
 OSC controllers/applications and the browser.
 
-* Prerequisites
+## Prerequisites
 
-- [[http://nodejs.org][node.js]]
-- [[http://socket.io][socket.io]]
-- an OSC supported application ([[http://puredata.org][Puredata]]) or hardware controller
+- [[http://nodejs.org][Node]]
+- [[http://socket.io][Socket.io]]
+- Some OSC supported application ([[http://puredata.org][Puredata]], Renoise, Reaktor, ...) or hardware controller
 
-* Installation
+## Installation
 
-First of all, download and install nodejs from http://nodejs.org, then:
+First of all, download and install Nodejs LTS from http://nodejs.org, then:
 
-#+begin_src sh
+```
 $ git clone git://github.com/automata/osc-web.git
 $ cd osc-web/
 $ npm install
-#+end_src
+```
 
-* Using
+## Using
 
 Run the bridge app on your machine (localhost):
 
-#+begin_src sh
+```
 $ cd osc-web
 $ node bridge.js
-#+end_src
+```
 
-An example HTML is avaitable at web-side/app.html. Open it in your browser:
+An example is avaitable at `web-side/app.html`. Host this static asset the way you like:
 
-#+begin_src sh
-$ firefox test-app/test-app.html
-#+end_src
+```
+$ cd web-side/
+$ python -m SimpleHTTPServer 5000
+```
+
+Open your browser at `http://localhost:500/app.html`.
 
 Now you can run your favorite OSC app/device and send OSC messages
 through port 3333. Those messages will be send to the HTML page by
@@ -71,19 +78,19 @@ on 3333 and sending messages to 3334.
 
 Take a look at osc-side/ to examples of OSC apps.
 
-* Projects using it
+## Projects using it
 
 - 2011 Experience Design class project: http://codes.nevercool.com and https://vimeo.com/album/1636910
 - Shapes (Keely Honeywell) at Laboratory! by Alan Chatham: http://laboratoryspokane.com/2013/10/30/005/ and source code at https://github.com/AlanChatham/005-Values
 
-* Related solutions
+## Related solutions
 
 - [[https://github.com/fajran/npTuioClient][npTuioClient]]: a NPAPI plugin implementing a TUIOClient clone
 - [[http://pooky.sourceforge.net/wiki/PookyTouch][PookyTouch]]: similar to npTuioClient using Java-JS LiveConnect bridge
 - [[http://blog.lilyapp.org/2007/05/lily_osc_1.html][lily's approach]]: some good notes. also uses LiveConnect
 - [[http://tirl.org/software/maxjax/][MaxJax]]: OSC bridge using Python Twisted (just sending OSC)
 
-* References
+## References
 
 - [[http://www.midnightresearch.com/index.php?s=nsisockettransportservice][Socket connections in FF]]
 - [[http://opensoundcontrol.org/files/osc-best-practices-final.pdf][OSC Best Practices]]
