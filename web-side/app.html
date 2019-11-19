@@ -4,9 +4,24 @@
 </head>
 
 <body>
+
 <p>Connect your OSC app/device at port 3333 to send messages to this
 page.<br /><br />Configure your OSC app/device to listen at port 3334
 to messages I send from this page.</p>
+
+<pre>
+        OSC app ----> bridge.js server : 3333 -----> web page
+          /\                                             |
+           `--------- bridge.js server : 3334 <----------'
+</pre>
+
+Under the hood what really happens is:
+
+<pre>
+        OSC app --[TCP/UDP]--> bridge.js oscServer:3333 ; bridge.js socketio client --[WebSockets]--> website app.js
+
+        website app.js --[WebSockets]--> bridge.js socket.io server:8081 ; bridge.js oscClient --[TCP/UDP]--> OSC app:3334    
+</pre>
 
 <hr />
 
@@ -18,7 +33,6 @@ Received from an OSC app/device at : <div id="status"></div>
 
 <script>
    var socket = io('http://127.0.0.1:8081');
-   console.log('oi');
    socket.on('connect', function() {
         // sends to socket.io server the host/port of oscServer
         // and oscClient
@@ -43,6 +57,6 @@ Received from an OSC app/device at : <div id="status"></div>
     });
 </script>
 
-<button onclick="socket.emit('message', '/foobar');">Send OSC message</button>
+<button onclick="socket.emit('message', '/foo/bar 1 2 3');">Send /foo/bar/ 1 2 3</button>
 
 </body> </html>
