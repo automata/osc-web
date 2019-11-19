@@ -7,31 +7,30 @@
 		"email": "vilson@void.cc"
 	},
 	"contributors": [
-	{
-		"name": "Hans Hübner",
-		"email": "hans.huebner@gmail.com"
-	},
-	{
-		"name": "Andy Smith",
-		"email": "jabber@term.ie"
-	},
-	{
-		"name": "Myles Borins",
-		"email": "myles.borins@gmail.com"
-	},
-	{
-		"name": "Hideyuki Saito",
-		"email": "hideyuki@uniba.jp"
-	},
-	{
-		"name": "Takuro Yoshida",
-		"email": "american423@gmail.com"
-	}	
-	
+		{
+			"name": "Hans Hübner",
+			"email": "hans.huebner@gmail.com"
+		},
+		{
+			"name": "Andy Smith",
+			"email": "jabber@term.ie"
+		},
+		{
+			"name": "Myles Borins",
+			"email": "myles.borins@gmail.com"
+		},
+		{
+			"name": "Hideyuki Saito",
+			"email": "hideyuki@uniba.jp"
+		},
+		{
+			"name": "Takuro Yoshida",
+			"email": "american423@gmail.com"
+		}
 	],
 	"dependencies": {
-		"node-osc": "1.1.x",
-		"socket.io": "1.3.x"
+		"node-osc": "^1.2.0",
+		"socket.io": "^1.7.4"
 	},
 	"keywords": [
 		"osc",
