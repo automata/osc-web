@@ -29,8 +29,8 @@
 		}
 	],
 	"dependencies": {
-		"node-osc": "^1.2.0",
-		"socket.io": "^1.7.4"
+		"node-osc": "^4.1.7",
+		"socket.io": "^2.3.0"
 	},
 	"keywords": [
 		"osc",
