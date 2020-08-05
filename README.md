@@ -73,7 +73,7 @@ $ cd web-side/
 $ python -m SimpleHTTPServer 5000
 ```
 
-Open your browser at http://localhost:500/app.html.
+Open your browser at http://localhost:5000/app.html.
 
 Now you can run your favorite OSC app/device and send OSC messages
 through port 3333. Those messages will be send to the HTML page by
